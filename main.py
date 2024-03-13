@@ -4,14 +4,16 @@ import streamlit as st
 import datetime as dt
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import re
 
-# Disclaimer
 st.write("""
-   <div style="padding: 10px; background-color: #f5f5f5; border-radius: 10px;"strea>
-   <h3>Disclaimer</h3>
-   <p>This project is for educational purposes only. Predictions made by machine learning models may not always be accurate and should not be used as the sole basis for making investment decisions. Always conduct thorough research and consult with financial professionals before investing in the stock and crypto market.</p>
+   <div style="padding: 10px; background-color: #8B0000; border-radius: 10px;">
+   <h3 style="color: #FFFFFF;">Disclaimer</h3>
+   <p style="color: #FFB6C1;">This project is for educational purposes only. Predictions made by machine learning models may not always be accurate and should not be used as the sole basis for making investment decisions. Always conduct thorough research and consult with financial professionals before investing in the stock and crypto market.</p>
    </div>
    """, unsafe_allow_html=True)
+
+
 
 nifty50_symbols = ["ADANIPORTS.NS", "ASIANPAINT.NS", "AXISBANK.NS", "BAJAJ-AUTO.NS", "BAJFINANCE.NS",
                    "BAJAJFINSV.NS", "BPCL.NS", "BHARTIARTL.NS", "BRITANNIA.NS",
@@ -57,7 +59,7 @@ stock = yf.Ticker(ticker)
 if (infoType == 'Fundamental Analysis'):
     stock = yf.Ticker(ticker)
     info = stock.info
-    print(info)
+    # print(info)
     st.title('Company Profile')
     st.subheader(info['longName'])
     st.markdown('** Sector **: ' + (info['sector'] if 'sector' in info else 'N/A'))
@@ -70,7 +72,20 @@ if (infoType == 'Fundamental Analysis'):
         (info['country'] if 'country' in info else 'N/A'))
     st.markdown('** Website **: ' + (info['website'] if 'website' in info else 'N/A'))
     st.markdown('** Business Summary **')
-    st.info(info['longBusinessSummary'] if 'longBusinessSummary' in info else 'N/A')
+    # st.info(info['longBusinessSummary'] if 'longBusinessSummary' in info else 'N/A')
+
+    # Assuming `info['longBusinessSummary']` contains the text
+    text = info['longBusinessSummary'] if 'longBusinessSummary' in info else 'N/A'
+
+    # Splitting text into sentences using regular expression
+    sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s', text)
+
+    # Selecting the first five sentences
+    first_five_sentences = ' '.join(sentences[:4])
+
+    # Displaying the first five sentences
+    st.info(first_five_sentences)
+
 
     fundInfo = {
         'Enterprise Value (USD)': info.get('enterpriseValue', 'N/A'),
@@ -126,6 +141,54 @@ if (infoType == 'Fundamental Analysis'):
 
     marketDF = pd.DataFrame(data=marketInfo, index=[0])
     st.table(marketDF)
+
+    start_date = dt.datetime.today() - dt.timedelta(2 * 365)
+    historical_data = yf.download(ticker, start=start_date, end=end_date)
+
+    # Calculate returns
+    historical_data['Returns'] = historical_data['Adj Close'].pct_change() * 100
+
+    # Plot returns
+    fig_returns = go.Figure()
+    fig_returns.add_trace(
+        go.Scatter(x=historical_data.index, y=historical_data['Returns'], mode='lines', name='Returns'))
+    fig_returns.update_layout(title='Stock Returns Over the Past Two Years', xaxis_title='Date',
+                              yaxis_title='Returns (%)')
+    st.plotly_chart(fig_returns, use_container_width=True)
+
+
+    st.markdown("""
+           <style>
+           .author {
+             font-size: 16px;
+             text-align: center;
+             margin-top: 30px;
+             padding: 10px;
+             border-radius: 10px;
+           }
+           .author a {
+             color: #0077b5;
+             text-decoration: none;
+           }
+           @media (prefers-color-scheme: light) {
+             .author {
+               background-color: #f5f5f5; /* Light mode background color */
+             }
+           }
+           @media (prefers-color-scheme: dark) {
+             .author {
+               background-color: #333333; /* Dark mode background color */
+             }
+             .author a {
+               color: #4dbdff; /* Dark mode link color */
+             }
+           }
+           </style>
+           """, unsafe_allow_html=True)
+
+    st.markdown(
+        '<p class="author">Author: Prahlad Pallav | <a href="https://www.linkedin.com/in/prahladpallav/" target="_blank">LinkedIn</a></p>',
+        unsafe_allow_html=True)
 else:
     def calcMovingAverage(data, size):
         df = data.copy()
@@ -206,7 +269,7 @@ else:
     ))
 
     figMA.update_layout(legend_title_text='Trend')
-    figMA.update_yaxes(tickprefix="$")
+    figMA.update_yaxes(tickprefix="Rs")
 
     st.plotly_chart(figMA, use_container_width=True)
 
@@ -276,7 +339,7 @@ else:
         x=0
     ))
 
-    figMACD.update_yaxes(tickprefix="$")
+    figMACD.update_yaxes(tickprefix="Rs")
     st.plotly_chart(figMACD, use_container_width=True)
 
     st.subheader('Bollinger Band')
@@ -325,10 +388,9 @@ else:
         x=0
     ))
 
-    figBoll.update_yaxes(tickprefix="$")
+    figBoll.update_yaxes(tickprefix="Rs")
     st.plotly_chart(figBoll, use_container_width=True)
 
-    # Author details
     st.markdown("""
        <style>
        .author {
@@ -336,12 +398,24 @@ else:
          text-align: center;
          margin-top: 30px;
          padding: 10px;
-         background-color: #f5f5f5;
          border-radius: 10px;
        }
        .author a {
          color: #0077b5;
          text-decoration: none;
+       }
+       @media (prefers-color-scheme: light) {
+         .author {
+           background-color: #f5f5f5; /* Light mode background color */
+         }
+       }
+       @media (prefers-color-scheme: dark) {
+         .author {
+           background-color: #333333; /* Dark mode background color */
+         }
+         .author a {
+           color: #4dbdff; /* Dark mode link color */
+         }
        }
        </style>
        """, unsafe_allow_html=True)
