@@ -21,7 +21,7 @@ st.write("""
    """, unsafe_allow_html=True)
 
 # Display loading message with yellow color, padding at the top, and centered text
-st.write("<div style='padding-top: 10px; text-align: center; color: blue;'>This app may take some time to load, please wait...</div>", unsafe_allow_html=True)
+st.write("<div style='padding-top: 10px; text-align: center; color: grey;'>This app may take some time to load, please wait...</div>", unsafe_allow_html=True)
 
 
 
@@ -80,10 +80,24 @@ st.write("You selected:", ticker)
 # st.write("<span style='color: green;'>You selected:</span>", ticker, unsafe_allow_html=True)
 
 
-infoType = st.sidebar.radio(
-    "Choose an info type",
-    ('Fundamental Analysis', 'Technical Analysis')
-)
+# infoType = st.sidebar.radio(
+#     "Choose an info type",
+#     ('Fundamental Analysis', 'Technical Analysis')
+# )
+
+# Check if the window width is greater than a certain threshold (e.g., for desktop view)
+if st.sidebar.checkbox("Show Sidebar"):
+    # Display sidebar content
+    infoType = st.sidebar.radio(
+        "Choose an info type",
+        ('Fundamental Analysis', 'Technical Analysis')
+    )
+else:
+    # Display content without sidebar for mobile view
+    infoType = st.radio(
+        "Choose an info type",
+        ('Fundamental Analysis', 'Technical Analysis')
+    )
 
 stock = yf.Ticker(ticker)
 
