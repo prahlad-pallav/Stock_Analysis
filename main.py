@@ -5,6 +5,13 @@ import datetime as dt
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import re
+import time
+
+
+st.set_page_config(
+    page_title="Stock Analysis - Prahlad",
+    page_icon=":chart_with_upwards_trend:",  # You can change this to the path of your favicon
+)
 
 st.write("""
    <div style="padding: 10px; background-color: #8B0000; border-radius: 10px;">
@@ -12,6 +19,10 @@ st.write("""
    <p style="color: #FFB6C1;">This project is for educational purposes only. Predictions made by machine learning models may not always be accurate and should not be used as the sole basis for making investment decisions. Always conduct thorough research and consult with financial professionals before investing in the stock and crypto market.</p>
    </div>
    """, unsafe_allow_html=True)
+
+# Display loading message with yellow color, padding at the top, and centered text
+st.write("<div style='padding-top: 10px; text-align: center; color: blue;'>This app may take some time to load, please wait...</div>", unsafe_allow_html=True)
+
 
 
 
@@ -45,9 +56,29 @@ for symbol in nifty50_symbols:
 nifty50_df = pd.DataFrame({'Symbol': symbols, 'Name': names, 'Sector': sectors})
 symbols = nifty50_df['Symbol'].sort_values().tolist()
 
-ticker = st.sidebar.selectbox(
+
+# # Display loading message
+# st.info("This app will take some time to load, please wait...")
+
+
+# ticker = st.selectbox(
+#     'Choose a Nifty 50 Stock',
+#     symbols)
+
+# Adding padding at the top of the select box
+st.write("""
+    <div style="margin-top: 10px;">
+    </div>
+""", unsafe_allow_html=True)
+
+ticker = st.selectbox(
     'Choose a Nifty 50 Stock',
-    symbols)
+    symbols
+)
+
+st.write("You selected:", ticker)
+# st.write("<span style='color: green;'>You selected:</span>", ticker, unsafe_allow_html=True)
+
 
 infoType = st.sidebar.radio(
     "Choose an info type",
@@ -62,14 +93,16 @@ if (infoType == 'Fundamental Analysis'):
     # print(info)
     st.title('Company Profile')
     st.subheader(info['longName'])
+
+
     st.markdown('** Sector **: ' + (info['sector'] if 'sector' in info else 'N/A'))
     st.markdown('** Industry **: ' + (info['industry'] if 'industry' in info else 'N/A'))
-    st.markdown('** Phone **: ' + (info['phone'] if 'phone' in info else 'N/A'))
-    st.markdown(
-        '** Address **: ' + (info['address1'] if 'address1' in info else 'N/A') + ', ' +
-        (info['city'] if 'city' in info else 'N/A') + ', ' +
-        (info['zip'] if 'zip' in info else 'N/A') + ', ' +
-        (info['country'] if 'country' in info else 'N/A'))
+    # st.markdown('** Phone **: ' + (info['phone'] if 'phone' in info else 'N/A'))
+    # st.markdown(
+    #     '** Address **: ' + (info['address1'] if 'address1' in info else 'N/A') + ', ' +
+    #     (info['city'] if 'city' in info else 'N/A') + ', ' +
+    #     (info['zip'] if 'zip' in info else 'N/A') + ', ' +
+    #     (info['country'] if 'country' in info else 'N/A'))
     st.markdown('** Website **: ' + (info['website'] if 'website' in info else 'N/A'))
     st.markdown('** Business Summary **')
     # st.info(info['longBusinessSummary'] if 'longBusinessSummary' in info else 'N/A')
